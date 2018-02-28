@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+program=$1
+path_program=`which $program`
+echo "Checking program : "$program
+echo "Path of program  : "$path_program
+size=${#path_program}
+echo "Length : "$size
+if [[ -z  $path_program  ]]; then
+	echo "The program $program does not seem to be installed."
+  echo "Installing now"
+  sleep 1
+  sudo apt-get install $program
+	# reload the terminal
+	source ~/.bashrc
+else
+	echo "The program $program seems to be installed."
+  #sudo apt-get install $program
+fi
+echo ""
