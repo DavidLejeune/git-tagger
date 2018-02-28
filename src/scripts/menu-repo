@@ -5,6 +5,10 @@ Menu1="Show repositories"
 Menu2="Edit repositories file"
 Menu3="Add a repository"
 
+bHandle=False
+
+# FUNCTIONS ###################################################################
+
 function show_header(){
 	#feed the narcistic beast
   src/scripts/show-logo $Menu
@@ -26,7 +30,7 @@ function show_repos(){
     REPO_LINK="${array[1]}"
 
     # output the list
-    printf "%-4s %-20s %s\n" "$i" $REPO_NAME $REPO_LINK
+      printf "%-4s %-20s %s\n" "$i" $REPO_NAME $REPO_LINK
 
     i=$((i+1))
   done < src/data/repos
@@ -46,6 +50,8 @@ function add_repo(){
   echo "Showing the new list : "
 	show_repos
 }
+
+# SCRIPT ###################################################################
 
 #intro
 show_header

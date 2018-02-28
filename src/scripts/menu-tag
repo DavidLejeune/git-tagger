@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 Menu="TAG MENU"
-Menu1="Tag Menu"
-Menu2="Repo Menu"
+Menu1="Show tags"
+Menu2="Edit tags"
+
+bHandle=False
+
+# FUNCTIONS ###################################################################
 
 function show_header(){
 	#feed the narcistic beast
@@ -15,6 +19,85 @@ function show_menu(){
 	echo ''
 }
 
+function handle_and_show_repos(){
+
+  # making sure we have added github to know hosts
+  if [ ! -n "$(grep "^bitbucket.org " ~/.ssh/known_hosts)" ]; then ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null; fi
+
+  # create temporary file
+  rm output.txt
+  touch output.txt
+  dos2unix output.txt
+  chmod 666 output.txt
+
+  i=0
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+    str=""
+    IFS=', ' read -r -a array <<< "$line"
+    REPO_NAME="${array[0]}"
+    REPO_LINK="${array[1]}"
+
+    if [ $i -gt 0 ]; then
+      handle_repo
+    fi
+    i=$((i+1))
+  done < src/data/repos
+  echo "showing the output"
+  cat output.txt
+}
+
+function edit_repos(){
+  nano src/data/repos
+}
+
+function handle_repo(){
+  PARENT_FOLDER=`pwd`
+  GIT_FOLDER="$PARENT_FOLDER/GIT/"
+
+  #check if subfolder GIT exists
+  if [ -d $GIT_FOLDER ] ; then
+  	#Do nothing
+  	echo "Git folder [$GIT_FOLDER] found"
+  else
+  	#test
+  	mkdir $GIT_FOLDER
+  	echo "Created the Git folder to house all the repositories"
+  fi
+
+  pull_or_clone $REPO_LINK $REPO_NAME
+}
+
+function pull_or_clone(){
+	PATH_REPO="$REPO_NAME"
+	GIT="$REPO_LINK"
+
+	#make sure you handle the repo's in the correct folder
+	cd $GIT_FOLDER
+
+	echo ""
+	echo "Handling repository $REPO_NAME"
+
+	#if the repo exists git pull otherwise clone it
+	if [ -d $PATH_REPO ] ; then
+		echo "Repository folder exists"
+		cd $PATH_REPO
+		yes | git pull
+    A=$(printf "%-4s %-20s %s %-4s \n" "$i" $REPO_NAME $REPO_LINK "[PULL]")
+    echo "$A"
+    echo "$A" | tee -a output.txt
+	else
+		echo "Repositry folder doesn't exist yet"
+		yes | git clone $GIT
+		echo "Git clone finished"
+    A=$(printf "%-4s %-20s %s %-4s \n" "$i" $REPO_NAME $REPO_LINK "[CLONE]")
+    echo "$A" | tee -a output.txt
+	fi
+	echo ""
+  cd $PARENT_FOLDER
+}
+
+# SCRIPT ###################################################################
+
 #intro
 show_header
 show_menu
@@ -25,25 +108,19 @@ read -r choice
 
 show_header
 
-
-
 if [ $choice == 1 ] ; then
 	Menu=$Menu1
 	show_header
-	./src/scripts/menu-tag
+  echo "First , checking all the repositories ..."
+  echo ""
+  handle_and_show_repos
+  echo ""
 elif [ $choice == 2 ] ; then
 	Menu=$Menu2
 	show_header
-	./src/scripts/menu-repo
-elif [ $choice == 3 ] ; then
-	Menu=$Menu3
-	show_header
-	./lib/find_ip
-	./lib/update_project
-elif [ $choice == 4 ] ; then
-	Menu=$Menu4
-	show_header
-	./lib/ssh_setup
+  checking_repos
 else
 	echo "You haven't made a valid choice"
 fi
+
+src/scripts/menu-return
