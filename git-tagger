@@ -25,7 +25,7 @@ msg='MAIN MENU'
 src/scripts/show-logo $msg
 
 # SHOW MENU ###################################################################
-./src/scripts/main-menu
+./src/scripts/menu-main
 
 
 

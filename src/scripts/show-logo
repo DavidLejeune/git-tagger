@@ -16,7 +16,7 @@ clear
 # echo "  >> Created : 31/08/2017"
 # echo ''
 
-(clear && toilet -f slant -F gay "DaLe" && toilet -f digital -F gay  "GIT-TAGGER" && echo "$(date '+%D %T' | toilet -f term -F border --gay)"&& fortune )
+(clear && toilet -f slant -F gay "DaLe" && toilet -f digital -F gay  "GIT-TAGGER" && echo "$(date '+%D %T' | toilet -f term -F border --gay)")
 
 
 if [ $# -gt 0 ]

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-Menu="MAIN MENU"
-Menu1="Show repos"
-Menu2="Edit repos"
+Menu="REPO MENU"
+Menu1="Show repositories"
+Menu2="Edit repositories"
 
 function show_header(){
 	#feed the narcistic beast
@@ -16,11 +16,54 @@ function show_menu(){
 }
 
 function show_repos(){
+  echo "Showing the repositories.."
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+  str=""
+  IFS=', ' read -r -a array <<< "$line"
+  REPO_NAME="${array[0]}"
+  REPO_LINK="${array[1]}"
+
+  # if length of string is short add a tab
+  size=${#REPO_NAME}
+  size=$(( size + 0 ))
+  if [[ $size -gt 17 ]]; then
+      tab="\t"
+  else
+      tab="\t\t"
+  fi
+
+  echo -e "$REPO_NAME $tab $REPO_LINK"
+  #skip the header
+  #   if [[ $app != "APP" ]]
+  #   then
+  #     #Checking for apps to update
+  #       if [ -d $repo"/" ]; then
+  #         # Control will enter here if $DIRECTORY exists.
+  #         cd $repo
+  #         sudo git fetch origin 'refs/tags/*:refs/tags/*'
+  #         if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+  #             echo -e "$app , OK" >> $log_file
+  #             git checkout tags/$tag
+  #             # act according to the app
+  #             #app_actions
+  #         else
+  #             echo -e "$app , NOK" >> $log_file
+  #         fi
+  #         cd $build_folder
+  #     else
+  #       cd $build_folder
+  #           echo -e "$app , NOK" >> $log_file
+  #     fi
+  # fi
+
+done < src/data/repos
+
 
 }
 
 function edit_repos(){
-  
+  echo "Editing the repositories"
+
 }
 
 #intro

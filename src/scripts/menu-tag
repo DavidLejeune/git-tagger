@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-Menu="MAIN MENU"
+Menu="TAG MENU"
 Menu1="Tag Menu"
 Menu2="Repo Menu"
 
