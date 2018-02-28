@@ -1,1 +1,37 @@
 #!/usr/bin/env bash
+
+###############################################################################
+#
+# GIT TAGGER :
+# Allowing users to easily work with tags in their repo(s)
+#
+# Author : David Lejeune
+# Date : 28/02/2018
+#
+###############################################################################
+
+# INIT ########################################################################
+echo "First let's get this init out of the way ..."
+echo 'Ensuring the scripts are executable'
+chmod u+x src/*
+chmod u+x src/scripts/install/*
+echo ''
+
+echo 'Run Installers'
+./src/scripts/check-required-installs
+echo ''
+
+msg='MAIN MENU'
+src/scripts/show-logo $msg
+
+
+
+
+
+# echo 'Checking which install scripts will be run ...'
+# run-parts --test src/scripts/install
+# echo ''
+#
+# echo 'Running the install scripts ...'
+# echo ''
+# run-parts src/scripts/install
