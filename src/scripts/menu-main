@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+Menu="MAIN MENU"
+Menu1="Tag Menu"
+Menu2="Repo Menu"
+
+function show_header(){
+	#feed the narcistic beast
+  src/scripts/show-logo $Menu
+}
+
+function show_menu(){
+	echo "   1. $Menu1"
+	echo "   2. $Menu2"
+	echo ''
+}
+
+#intro
+show_header
+show_menu
+
+#do your thing based on menu choice
+printf 'Make your choice : '
+read -r choice
+
+show_header
+
+
+
+if [ $choice == 1 ] ; then
+	Menu=$Menu1
+	show_header
+	./src/scripts/menu-tag
+elif [ $choice == 2 ] ; then
+	Menu=$Menu2
+	show_header
+	./src/scripts/menu-repo
+elif [ $choice == 3 ] ; then
+	Menu=$Menu3
+	show_header
+	./lib/find_ip
+	./lib/update_project
+elif [ $choice == 4 ] ; then
+	Menu=$Menu4
+	show_header
+	./lib/ssh_setup
+else
+	echo "You haven't made a valid choice"
+fi

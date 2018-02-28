@@ -14,7 +14,7 @@
 echo "First let's get this init out of the way ..."
 echo 'Ensuring the scripts are executable'
 chmod u+x src/*
-chmod u+x src/scripts/install/*
+chmod u+x src/scripts/*
 echo ''
 
 echo 'Run Installers'
@@ -24,7 +24,8 @@ echo ''
 msg='MAIN MENU'
 src/scripts/show-logo $msg
 
-
+# SHOW MENU ###################################################################
+./src/scripts/main-menu
 
 
 

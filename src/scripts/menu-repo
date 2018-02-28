@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+Menu="MAIN MENU"
+Menu1="Show repos"
+Menu2="Edit repos"
+
+function show_header(){
+	#feed the narcistic beast
+  src/scripts/show-logo $Menu
+}
+
+function show_menu(){
+	echo "   1. $Menu1"
+	echo "   2. $Menu2"
+	echo ''
+}
+
+function show_repos(){
+
+}
+
+function edit_repos(){
+  
+}
+
+#intro
+show_header
+show_menu
+
+#do your thing based on menu choice
+printf 'Make your choice : '
+read -r choice
+
+show_header
+
+
+if [ $choice == 1 ] ; then
+	Menu=$Menu1
+	show_header
+	show_repos
+elif [ $choice == 2 ] ; then
+	Menu=$Menu2
+	show_header
+	edit_repos
+else
+	echo "You haven't made a valid choice"
+fi
