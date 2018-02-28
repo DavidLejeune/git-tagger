@@ -1,8 +1,9 @@
-REPO_NAME              ,REPO_LINK
-vmnengine              ,git@bitbucket.org:qbmt/vmnengine.git
-django-mqtt-server     ,git@bitbucket.org:qbmt/django-mqtt-server.git
-odp-vergeetmenietje    ,git@bitbucket.org:qbmt/odp-vergeetmenietje.git
-angular-client         ,git@bitbucket.org:qbmt/angular-client.git
-vmnmain                ,git@bitbucket.org:qbmt/vmnmain.git
-vmnupdater             ,git@bitbucket.org:qbmt/vmnupdater.git
-updatestates           ,git@bitbucket.org:qbmt/updatestates.git
+REPO_NAME ,REPO_LINK
+vmnengine,git@bitbucket.org:qbmt/vmnengine.git
+django-mqtt-server,git@bitbucket.org:qbmt/django-mqtt-server.git
+odp-vergeetmenietje,git@bitbucket.org:qbmt/odp-vergeetmenietje.git
+angular-client,git@bitbucket.org:qbmt/angular-client.git
+vmnmain,git@bitbucket.org:qbmt/vmnmain.git
+vmnupdater,git@bitbucket.org:qbmt/vmnupdater.git
+updatestates,git@bitbucket.org:qbmt/updatestates.git
+test,git add blablabla

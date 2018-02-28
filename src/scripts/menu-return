@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+#do your thing[ based on menu choice
+echo ""
+echo "Hit [ENTER] to return to Main Menu "
+echo "or type q + [ENTER] to quit"
+printf 'Make your choice : '
+read -r choice
+
+
+
+if [ $choice = "q" ] ; then
+  echo "Thank you , please come again ..."
+else
+  ./src/scripts/menu-main
+fi

@@ -2,7 +2,8 @@
 
 Menu="REPO MENU"
 Menu1="Show repositories"
-Menu2="Edit repositories"
+Menu2="Edit repositories file"
+Menu3="Add a repository"
 
 function show_header(){
 	#feed the narcistic beast
@@ -12,58 +13,38 @@ function show_header(){
 function show_menu(){
 	echo "   1. $Menu1"
 	echo "   2. $Menu2"
+	echo "   3. $Menu3"
 	echo ''
 }
 
 function show_repos(){
-  echo "Showing the repositories.."
+  i=0
   while IFS='' read -r line || [[ -n "$line" ]]; do
-  str=""
-  IFS=', ' read -r -a array <<< "$line"
-  REPO_NAME="${array[0]}"
-  REPO_LINK="${array[1]}"
+    str=""
+    IFS=', ' read -r -a array <<< "$line"
+    REPO_NAME="${array[0]}"
+    REPO_LINK="${array[1]}"
 
-  # if length of string is short add a tab
-  size=${#REPO_NAME}
-  size=$(( size + 0 ))
-  if [[ $size -gt 17 ]]; then
-      tab="\t"
-  else
-      tab="\t\t"
-  fi
+    # output the list
+    printf "%-4s %-20s %s\n" "$i" $REPO_NAME $REPO_LINK
 
-  echo -e "$REPO_NAME $tab $REPO_LINK"
-  #skip the header
-  #   if [[ $app != "APP" ]]
-  #   then
-  #     #Checking for apps to update
-  #       if [ -d $repo"/" ]; then
-  #         # Control will enter here if $DIRECTORY exists.
-  #         cd $repo
-  #         sudo git fetch origin 'refs/tags/*:refs/tags/*'
-  #         if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-  #             echo -e "$app , OK" >> $log_file
-  #             git checkout tags/$tag
-  #             # act according to the app
-  #             #app_actions
-  #         else
-  #             echo -e "$app , NOK" >> $log_file
-  #         fi
-  #         cd $build_folder
-  #     else
-  #       cd $build_folder
-  #           echo -e "$app , NOK" >> $log_file
-  #     fi
-  # fi
-
-done < src/data/repos
-
-
+    i=$((i+1))
+  done < src/data/repos
 }
 
 function edit_repos(){
-  echo "Editing the repositories"
+  nano src/data/repos
+}
 
+function add_repo(){
+  printf 'The name of the new repo : '
+  read -r REPO_NAME
+  printf 'The link to the new repo : '
+  read -r REPO_LINK
+  echo "$REPO_NAME,$REPO_LINK" >> src/data/repos
+  echo "Added the new repo to the list"
+  echo "Showing the new list : "
+	show_repos
 }
 
 #intro
@@ -85,6 +66,12 @@ elif [ $choice == 2 ] ; then
 	Menu=$Menu2
 	show_header
 	edit_repos
+elif [ $choice == 3 ] ; then
+	Menu=$Menu3
+	show_header
+	add_repo
 else
 	echo "You haven't made a valid choice"
 fi
+
+src/scripts/menu-return
