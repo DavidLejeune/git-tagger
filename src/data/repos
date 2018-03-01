@@ -6,3 +6,4 @@ angular-client,git@bitbucket.org:qbmt/angular-client.git
 vmnmain,git@bitbucket.org:qbmt/vmnmain.git
 vmnupdater,git@bitbucket.org:qbmt/vmnupdater.git
 updatestates,git@bitbucket.org:qbmt/updatestates.git
+test-python,git@bitbucket.org:dl-qbmt/test-python.git

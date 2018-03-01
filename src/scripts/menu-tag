@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 Menu="TAG MENU"
-Menu1="Show tags"
-Menu2="Edit tags"
+Menu1="Show last tags"
+Menu2="Show all tags"
+Menu3="Edit tags for a repo"
 
 bHandle=False
 
@@ -16,6 +17,7 @@ function show_header(){
 function show_menu(){
 	echo "   1. $Menu1"
 	echo "   2. $Menu2"
+	echo "   3. $Menu3"
 	echo ''
 }
 
@@ -27,10 +29,8 @@ function handle_and_show_repos(){
   str=""
   ARRAY=()
 
-
     msg="Updating the repos"
     $PARENT_FOLDER/src/scripts/show-logo $msg
-    sleep 1
 
   i=0
   while IFS='' read -r line || [[ -n "$line" ]]; do
@@ -54,6 +54,296 @@ function handle_and_show_repos(){
        # or do whatever with individual element of the array
     done
 }
+
+function select_repo(){
+  # making sure we have added github to know hosts
+  echo ""
+  printf 'Enter the number of the repo you wish to select: '
+  read -r repo_nr
+  if [[ -z $repo_nr ]]; then
+    echo "You didn't select a valid nr"
+    return
+  fi
+
+  i=0
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+    IFS=', ' read -r -a array <<< "$line"
+    REPO_NAME="${array[0]}"
+    REPO_LINK="${array[1]}"
+
+    if [[ $i -eq $repo_nr ]]; then
+      echo "You have selected the repo : $REPO_NAME"
+      break
+    fi
+    i=$((i+1))
+  done < src/data/repos
+
+  ARRAY=()
+  check_all_tags
+  for i in "${ARRAY[@]}"
+      do
+         echo "$i"
+         # or do whatever with individual element of the array
+      done
+
+      cd $PARENT_FOLDER/GIT/$REPO_NAME/
+      select_branch
+}
+
+function select_branch(){
+  printf 'Select the branch on which to search (default:master) > '
+  read -r branch
+  if [[ -z "$branch" ]]; then
+   git checkout master
+  else
+     git checkout $branch
+  fi
+  echo ""
+  echo "Showing the last 5 commits : "
+  git pull
+  git log --oneline --max-count=5 --tags --decorate=full
+  echo ""
+  check_diff_tag_and_branch
+}
+
+function check_diff_tag_and_branch(){
+    printf 'Select the tag with which to check the commit diff > '
+    read -r tag
+    if [[ -z "$tag" ]]; then
+       echo "You have chosen not to show a commit diff"
+    else
+      echo ""
+      echo "Commits between $tag and HEAD :"
+      git log $tag..HEAD --oneline
+    fi
+    new_or_delete
+
+}
+
+function new_or_delete(){
+  printf 'Would you like to create or delete a tag ? (c/d) > '
+  read -r new_or_delete
+  if [[ -z "$new_or_delete" ]]; then
+     echo "Please answer the freaking question"
+     new_or_delete
+  else
+    if [[ $new_or_delete == "c" ]]; then
+      echo "You selected : create"
+      echo ""
+      create_new_tag
+
+    elif [[ $new_or_delete == "d" ]]; then
+      echo "You selected : delete"
+      echo ""
+       delete_tag
+    fi
+  fi
+
+}
+
+function delete_tag(){
+  printf 'Would you like to delete a tag ? (y/n) > '
+  read -r delete_q
+  if [[ -z "$delete_q" ]]; then
+     echo "Please answer the freaking question"
+     create_new_tag
+  else
+    if [[ $delete_q == "y" ]]; then
+      printf 'Please enter tag to delete > '
+      read -r delete_tag
+      echo "Tag to delete is : "$delete_tag
+      echo "Deleting the tag locally"
+      git tag -d $delete_tag
+      echo ""
+      echo "Deleting the remote tag"
+      git push origin :refs/tags/$tag
+      echo ""
+      git pull origin
+      echo "Showing all the tags in the repo now"
+      git tag
+    elif [[ $delete_q == "n" ]]; then
+      echo "You have selected not to delete a tag"
+       cd $PARENT_FOLDER
+       src/scripts/menu-return
+    fi
+  fi
+  echo ""
+  continue_edit
+}
+
+function create_new_tag(){
+  printf 'Would you like to create a new tag ? (y/n) > '
+  read -r create_q
+  if [[ -z "$create_q" ]]; then
+     echo "Please answer the freaking question"
+     create_new_tag
+  else
+    if [[ $create_q == "y" ]]; then
+      printf 'Please enter the new tag name > '
+      read -r new_tag
+      echo "New tag is : "$new_tag
+      echo ""
+      printf 'Please enter tag description > '
+        read -r tag_info
+      git tag -a $new_tag -m "$tag_info"
+      echo "Pushing the tags to the repository"
+      git push --tags
+      echo ""
+      git pull origin
+      echo "Showing all the tags in the repo now"
+      git tag
+    elif [[ $create_q == "n" ]]; then
+       cd $PARENT_FOLDER
+       src/scripts/menu-return
+    fi
+  fi
+  echo ""
+  continue_edit
+}
+
+function continue_edit(){
+  printf 'Would you like to continue editing tags ? (y/n) > '
+  read -r continue_q
+  if [[ -z "$continue_q" ]]; then
+     echo "Please answer the freaking question"
+     continue_edit
+  else
+    if [[ $continue_q == "y" ]]; then
+      cd $PARENT_FOLDER
+      Menu=$Menu3
+      show_header
+      update_repos
+    	Menu=$Menu3
+    	show_header
+      show_latest_tag
+      select_repo
+    elif [[ $continue_q == "n" ]]; then
+       cd $PARENT_FOLDER
+       src/scripts/menu-return
+    fi
+  fi
+}
+
+function update_repos(){
+  echo "First , checking all the repositories ..."
+  echo ""
+  handle_and_show_repos
+  echo ""
+}
+
+function show_latest_tag(){
+
+  # making sure we have added github to know hosts
+  if [ ! -n "$(grep "^bitbucket.org " ~/.ssh/known_hosts)" ]; then ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null; fi
+
+  str=""
+  ARRAY=()
+
+    msg="Showing latest tag for the repos"
+    $PARENT_FOLDER/src/scripts/show-logo $msg
+  i=0
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+    IFS=', ' read -r -a array <<< "$line"
+    REPO_NAME="${array[0]}"
+    REPO_LINK="${array[1]}"
+
+    if [ $i -gt 0 ]; then
+      check_latest_tag
+    else
+      A=$(printf "%-4s %-20s %-50s %s \n" "$i" $REPO_NAME $REPO_LINK "LAST TAG")
+      ARRAY+=("$A")
+    fi
+    i=$((i+1))
+  done < src/data/repos
+    msg="Finished showing last tag"
+    $PARENT_FOLDER/src/scripts/show-logo $msg
+    for i in "${ARRAY[@]}"
+    do
+       echo "$i"
+       # or do whatever with individual element of the array
+    done
+}
+
+function show_all_tags(){
+
+  # making sure we have added github to know hosts
+  if [ ! -n "$(grep "^bitbucket.org " ~/.ssh/known_hosts)" ]; then ssh-keyscan bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null; fi
+
+  str=""
+  ARRAY=()
+
+    msg="Showing latest tag for the repos"
+    $PARENT_FOLDER/src/scripts/show-logo $msg
+
+  i=0
+  while IFS='' read -r line || [[ -n "$line" ]]; do
+    IFS=', ' read -r -a array <<< "$line"
+    REPO_NAME="${array[0]}"
+    REPO_LINK="${array[1]}"
+
+    if [ $i -gt 0 ]; then
+      check_all_tags
+    else
+      A="LIST OF ALL TAGS FOR REPO(S)"
+      ARRAY+=("$A")
+      A=$(echo " ")
+      ARRAY+=("$A")
+    fi
+    i=$((i+1))
+  done < src/data/repos
+    msg="Finished showing all tag"
+    $PARENT_FOLDER/src/scripts/show-logo $msg
+    for i in "${ARRAY[@]}"
+    do
+       echo "$i"
+       # or do whatever with individual element of the array
+    done
+}
+
+function check_latest_tag(){
+  PATH_REPO="$REPO_NAME"
+	GIT="$REPO_LINK"
+
+	#make sure you handle the repo's in the correct folder
+	cd $GIT_FOLDER
+
+	#if the repo exists git pull otherwise clone it
+	if [ -d $PATH_REPO ] ; then
+		cd $PATH_REPO
+		tag=`git describe --abbrev=0 --tags`
+    A=$(printf "%-4s %-20s %-50s %-4s \n" "$i" $REPO_NAME $REPO_LINK $tag)
+    ARRAY+=("$A")
+	fi
+	echo ""
+  cd $PARENT_FOLDER
+}
+
+function check_all_tags(){
+  PATH_REPO="$REPO_NAME"
+	GIT="$REPO_LINK"
+
+	#make sure you handle the repo's in the correct folder
+	cd $GIT_FOLDER
+
+	#if the repo exists git pull otherwise clone it
+	if [ -d $PATH_REPO ] ; then
+		cd $PATH_REPO
+		tag=`git tag`
+    A=$(echo "repo name : "$REPO_NAME)
+    ARRAY+=("$A")
+    # A=$(echo "repo link : "$REPO_LINK)
+    # ARRAY+=("$A")
+    A=$(echo "[TAGS]")
+    ARRAY+=("$A")
+    A=$(echo "$tag")
+    ARRAY+=("$A")
+    A=$(echo " ")
+    ARRAY+=("$A")
+	fi
+	echo ""
+  cd $PARENT_FOLDER
+}
+
 
 function edit_repos(){
   nano src/data/repos
@@ -86,19 +376,18 @@ function pull_or_clone(){
 
 	#if the repo exists git pull otherwise clone it
 	if [ -d $PATH_REPO ] ; then
-		echo "Repository folder exists"
+		echo "Repository folder found"
+    echo "Pulling the repository ..."
 		cd $PATH_REPO
 		echo "yes" | git pull
     A=$(printf "%-4s %-20s %-50s %-4s \n" "$i" $REPO_NAME $REPO_LINK "[PULL]")
     ARRAY+=("$A")
-    sleep 1
 	else
 		echo "Repositry folder doesn't exist yet"
 		yes yes | git clone $GIT
 		echo "Git clone finished"
     A=$(printf "%-4s %-20s %-50s %-4s \n" "$i" $REPO_NAME $REPO_LINK "[CLONE]")
     ARRAY+=("$A")
-    sleep 1
 	fi
 	echo ""
   cd $PARENT_FOLDER
@@ -123,17 +412,30 @@ show_header
 if [ $choice == 1 ] ; then
 	Menu=$Menu1
 	show_header
-  echo "First , checking all the repositories ..."
-  echo ""
-  handle_and_show_repos
-  echo ""
+  update_repos
+  Menu=$Menu1
+  show_header
+  show_latest_tag
 elif [ $choice == 2 ] ; then
+  Menu=$Menu2
+  show_header
+  update_repos
 	Menu=$Menu2
 	show_header
-  checking_repos
+  show_all_tags
+elif [ $choice == 3 ] ; then
+  Menu=$Menu3
+  show_header
+  update_repos
+	Menu=$Menu3
+	show_header
+  show_latest_tag
+  select_repo
 else
 	echo "You haven't made a valid choice"
+  cd $PARENT_FOLDER
+  ./src/scripts/menu-return
 fi
 
 cd $PARENT_FOLDER
-./src/scripts/menu-return
+# ./src/scripts/menu-return
